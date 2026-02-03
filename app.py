@@ -8,15 +8,22 @@ import pymysql
 
 app = Flask(__name__)
 
-# Configuration de la base de données
-# Nous utilisons un utilisateur dédié 'famille_user' pour plus de sécurité
-# Assurez-vous d'avoir exécuté le script db_setup.sql
-db_user = 'famille_user'
-db_password = 'FAWAZ1*3*5*7*'
-db_host = 'localhost'
-db_name = 'family_expenses'
+# Configuration de la base de données pour Railway ou Local
+db_url = os.environ.get('DATABASE_URL')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
+if db_url:
+    # Railway fournit parfois mysql://, SQLAlchemy préfère mysql+pymysql://
+    if db_url.startswith('mysql://'):
+        db_url = db_url.replace('mysql://', 'mysql+pymysql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+else:
+    # Configuration locale
+    db_user = 'famille_user'
+    db_password = 'FAWAZ1*3*5*7*'
+    db_host = 'localhost'
+    db_name = 'family_expenses'
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'dev_secret_key' # For flash messages
 

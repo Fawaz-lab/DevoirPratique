@@ -18,6 +18,20 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(result, "Pomme")
         print("Test 'Top produit' (casse) réussi: ['pomme', 'Poire', 'Pomme'] -> 'Pomme'")
 
+    def test_get_most_common_product_with_spaces(self):
+        # Test avec des espaces
+        products = [" Pomme ", "Poire", "Pomme"]
+        result = get_most_common_product(products)
+        self.assertEqual(result, "Pomme")
+        print("Test 'Top produit' (espaces) réussi: [' Pomme ', 'Poire', 'Pomme'] -> 'Pomme'")
+
+    def test_get_most_common_product_invalid_inputs(self):
+        # Test avec None et chaines vides
+        products = ["Pomme", None, "", "Poire", "Pomme"]
+        result = get_most_common_product(products)
+        self.assertEqual(result, "Pomme")
+        print("Test 'Top produit' (invalides) réussi: ['Pomme', None, '', 'Poire', 'Pomme'] -> 'Pomme'")
+
     def test_empty_list(self):
         result = get_most_common_product([])
         self.assertIsNone(result)
