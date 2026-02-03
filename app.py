@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 
 import pymysql
+import ssl
 
 app = Flask(__name__)
 
@@ -17,15 +18,12 @@ if db_url:
         db_url = db_url.replace('mysql://', 'mysql+pymysql://', 1)
     
     # Gestion du certificat self-signed pour Railway
-    # Option 1: Ajouter les paramètres SSL dans l'URL
-    # app.config['SQLALCHEMY_DATABASE_URI'] = db_url + "?ssl_mode=REQUIRED&ssl_verify_identity=false"
-    
-    # Option 2 (plus propre avec SQLAlchemy): Utiliser connect_args
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'connect_args': {
             'ssl': {
-                'ssl_mode': 'DISABLED'  # ou 'REQUIRED' avec verify_identity=False selon le besoin
+                'check_hostname': False,
+                'verify_mode': ssl.CERT_NONE
             }
         }
     }
