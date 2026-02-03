@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .filter-btn { border: 2px solid #0d6efd; background-color: white; color: #0d6efd; font-weight: bold; transition: all 0.3s; }
+    .filter-btn:hover { background-color: #0d6efd; color: white; }
+    .reset-btn { border: 2px solid #6c757d; background-color: white; color: #6c757d; font-weight: bold; transition: all 0.3s; }
+    .reset-btn:hover { background-color: #6c757d; color: white; }
+    .table-custom thead th { background-color: #0d6efd; color: white; border-top: none; }
+    .card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: none; border-radius: 10px; }
+    .table-custom tbody tr:hover { background-color: #f1f8ff; transform: scale(1.005); transition: transform 0.2s; }
+</style>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card card-shadow bg-white">
+            <div class="card-body">
+                <h5 class="card-title text-primary fw-bold mb-3">Filtrer par période</h5>
+                <form method="GET" action="{{ url_for('index') }}" class="row g-3 align-items-end">
+                    <div class="col-auto">
+                        <label for="start_date" class="form-label fw-bold">Du</label>
+                        <input type="date" class="form-control border-primary" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}">
+                    </div>
+                    <div class="col-auto">
+                        <label for="end_date" class="form-label fw-bold">Au</label>
+                        <input type="date" class="form-control border-primary" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn filter-btn px-4">Filtrer</button>
+                        <a href="{{ url_for('index') }}" class="btn reset-btn px-4">Réinitialiser</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card text-white bg-success mb-3 card-shadow" style="background: linear-gradient(45deg, #198754, #20c997);">
+            <div class="card-header border-0 bg-transparent fw-bold">Total Dépenses</div>
+            <div class="card-body">
+                <h2 class="card-title display-6 fw-bold">{{ "%.0f"|format(total_expenses) }} FCFA</h2>
+                <p class="card-text opacity-75">Sur la période affichée</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-info mb-3 card-shadow" style="background: linear-gradient(45deg, #0dcaf0, #0d6efd);">
+            <div class="card-header border-0 bg-transparent fw-bold">Produit le plus acheté</div>
+            <div class="card-body">
+                <h2 class="card-title display-6 fw-bold">{{ most_common_product if most_common_product else 'Aucun' }}</h2>
+                <p class="card-text opacity-75">Sur la période affichée</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-shadow">
+    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+        <h3 class="text-primary fw-bold m-0">Historique des Achats</h3>
+        <span class="badge bg-primary rounded-pill px-3 py-2">{{ purchases|length }} achats</span>
+    </div>
+    <div class="card-body p-0">
+        {% if purchases %}
+            <div class="table-responsive">
+                <table class="table table-custom table-hover mb-0 align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="py-3 ps-4">Date</th>
+                            <th class="py-3">Produit</th>
+                            <th class="py-3">Acheteur</th>
+                            <th class="py-3 pe-4 text-end">Prix</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in purchases %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted">{{ purchase.date.strftime('%d/%m/%Y') }}</td>
+                                <td class="fw-bold text-dark">{{ purchase.product_name }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ purchase.shopper_name }}</span></td>
+                                <td class="pe-4 text-end fw-bold text-success">{{ "%.0f"|format(purchase.price) }} FCFA</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <p class="text-muted fs-5">Aucun achat enregistré pour cette période.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
