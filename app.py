@@ -9,13 +9,26 @@ import pymysql
 app = Flask(__name__)
 
 # Configuration de la base de données pour Railway ou Local
-db_url = os.environ.get('DATABASE_URL')
+db_url = os.environ.get('DATABASE_URL') or os.environ.get('MYSQL_URL')
 
 if db_url:
     # Railway fournit parfois mysql://, SQLAlchemy préfère mysql+pymysql://
     if db_url.startswith('mysql://'):
         db_url = db_url.replace('mysql://', 'mysql+pymysql://', 1)
+    
+    # Gestion du certificat self-signed pour Railway
+    # Option 1: Ajouter les paramètres SSL dans l'URL
+    # app.config['SQLALCHEMY_DATABASE_URI'] = db_url + "?ssl_mode=REQUIRED&ssl_verify_identity=false"
+    
+    # Option 2 (plus propre avec SQLAlchemy): Utiliser connect_args
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'connect_args': {
+            'ssl': {
+                'ssl_mode': 'DISABLED'  # ou 'REQUIRED' avec verify_identity=False selon le besoin
+            }
+        }
+    }
 else:
     # Configuration locale
     db_user = 'famille_user'
