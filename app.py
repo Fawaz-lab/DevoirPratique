@@ -17,17 +17,20 @@ if db_url:
     if db_url.startswith('mysql://'):
         db_url = db_url.replace('mysql://', 'mysql+pymysql://', 1)
     
-    # Gestion du certificat self-signed pour Railway
+    # Gestion du certificat self-signed pour Railway avec SSLContext explicite
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'connect_args': {
-            'ssl': {
-                'check_hostname': False,
-                'verify_mode': ssl.CERT_NONE
-            }
+            'ssl': ctx
         }
     }
+    print(f"DEBUG: Configuration DB Railway détectée. Hôte: {db_url.split('@')[-1].split('/')[0]}")
 else:
+    print("WARNING: DATABASE_URL non trouvée, utilisation de la configuration locale.")
     # Configuration locale
     db_user = 'famille_user'
     db_password = 'FAWAZ1*3*5*7*'
